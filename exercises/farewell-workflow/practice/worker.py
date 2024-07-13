@@ -1,11 +1,17 @@
 import asyncio
 import aiohttp
 
+from enum import Enum
+
 from temporalio.client import Client
 from temporalio.worker import Worker
 
 from translate import TranslateActivities
 from greeting import GreetSomeone
+
+
+class TaskQueue(Enum):
+    GREETING_TASK_QUEUE = "greeting-tasks"
 
 
 async def main():
@@ -17,10 +23,12 @@ async def main():
 
         worker = Worker(
             client,
-            task_queue="greeting-tasks",
+            task_queue=TaskQueue.GREETING_TASK_QUEUE.value,
             workflows=[GreetSomeone],
-            # TODO register your new activity below
-            activities=[activities.greet_in_spanish],
+            activities=[
+                activities.greet_in_spanish,
+                activities.farewell_in_spanish,
+            ]
         )
         print("Starting the worker....")
         await worker.run()
